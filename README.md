@@ -67,6 +67,3 @@ This project is a **full-stack backend service** built using **FastAPI** and **F
 4. Saves the output to Firestore with the current date.
 5. Returns the result to the user.
 
-
-
-Let me know if you'd like the README written as a `README.md` file or need a version including how to run it locally (e.g., `uvicorn`, `.env`, etc.).
