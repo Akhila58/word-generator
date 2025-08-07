@@ -1,0 +1,26 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+
+# Ignore environment variables file
+.env
+
+# Ignore Firebase key (if it's a file)
+firebaseKey.json 
+
+# Ignore secret key file
+secret_key.py
+
+# Ignore sample file
+sample.py
+
+# Ignore lock file (common for dependency managers)
+uv.lock

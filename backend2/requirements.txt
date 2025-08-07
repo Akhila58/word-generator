@@ -1,0 +1,10 @@
+bcrypt
+dotenv
+fastapi
+firebase-admin
+langchain[groq]
+langgraph
+passlib[bcrypt]
+pydantic[email]
+python-jose[cryptography]
+uvicorn

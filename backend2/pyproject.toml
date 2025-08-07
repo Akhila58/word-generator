@@ -1,0 +1,18 @@
+[project]
+name = "backend2"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "bcrypt==4.0.1",
+    "dotenv>=0.9.9",
+    "fastapi>=0.116.1",
+    "firebase-admin>=7.0.0",
+    "langchain[groq]>=0.3.26",
+    "langgraph>=0.5.4",
+    "passlib[bcrypt]==1.7.4",
+    "pydantic[email]>=2.11.7",
+    "python-jose[cryptography]>=3.5.0",
+    "uvicorn>=0.35.0",
+]
