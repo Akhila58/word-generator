@@ -1,4 +1,4 @@
-# 🔤 Daily Word Generator (AI-Powered)
+# Daily Word Generator (AI-Powered)
 
 This project is a **full-stack backend service** built using **FastAPI** and **Firebase Firestore** that allows users to sign up, log in, and generate AI-powered word content based on their job title. The system ensures secure user authentication using JWT tokens and bcrypt for password hashing. It integrates an LLM-based word generation engine to provide personalized content daily.
 
