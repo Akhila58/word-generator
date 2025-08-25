@@ -8,7 +8,7 @@ import bcrypt
 from uuid import uuid4
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from wordGen import wordgenerator
+from wordGen import wordgenerator , quiz_generator
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -119,14 +119,20 @@ async def generateData(current_user:dict = Depends(get_current_user)):
     today = datetime.now()
     formatted_date = today.strftime("%d-%m-%Y")
     user_doc = user_ref.where("user_id", "==", user_id).where("words_generated_on", "==", formatted_date).get()
+    import json
     ai_response = None
     if not user_doc:
         try:
-            ai_response = wordgenerator(job_title)
+            ai_response_str = wordgenerator(job_title)
+
+            try:
+                ai_response = json.loads(ai_response_str)
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"AI response is not valid JSON: {str(e)}")
             generation_details = {
                 "user_id" : user_id,
-                "word_object":ai_response,
-                "words_generated_on":formatted_date
+                "word_object": ai_response,
+                "words_generated_on": formatted_date
             }
             user_ref.add(generation_details)
         except Exception as e:
@@ -149,4 +155,86 @@ async def get_data(current_user:dict = Depends(get_current_user)):
     if user_doc:
         user_records = user_doc[0].to_dict()
         print(user_records)
-        return user_records["word_object"]
+        return user_records["word_object"] 
+    
+# @app.get("/get-history")
+# async def get_history(current_user: dict = Depends(get_current_user)):
+#     user_id = current_user["user_id"]
+#     history_ref = db.collection("words_generation_info")
+    
+#     # First get all documents for the user (without ordering to avoid index requirement)
+#     docs = history_ref.where("user_id", "==", user_id).get()
+    
+#     history = []
+#     for doc in docs:
+#         doc_data = doc.to_dict()
+#         # Transform the data to match frontend expectations
+#         history_item = {
+#             "generated_on": doc_data.get("words_generated_on", ""),
+#             "user_id": doc_data.get("user_id", ""),
+#             "data": doc_data.get("word_object", [])
+#         }
+#         history.append(history_item)
+    
+#     # Sort the history in Python by generated_on date in descending order
+#     # Convert date string to datetime object for proper sorting
+#     from datetime import datetime
+#     def sort_key(item):
+#         try:
+#             # Parse the date string (format: DD-MM-YYYY)
+#             return datetime.strptime(item["generated_on"], "%d-%m-%Y")
+#         except (ValueError, TypeError):
+#             # If parsing fails, use a default old date
+#             return datetime.min
+    
+#     history.sort(key=sort_key, reverse=True)
+
+# @app.get("/get-history")
+# async def get_history(current_user: dict = Depends(get_current_user)):
+    
+#     history_ref = db.collection("words_generation_info")
+#     user_id = current_user["user_id"]
+#     docs = history_ref.where("user_id", "==", user_id).order_by("words_generated_on").get()
+
+#     history = [doc.to_dict() for doc in docs]
+#     return history
+
+@app.get("/get-history")
+async def get_history(current_user: dict = Depends(get_current_user)):
+    
+    history_ref = db.collection("words_generation_info")
+    user_id = current_user["user_id"]
+    
+    # Option 1: Remove ordering (let client handle sorting)
+    docs = history_ref.where("user_id", "==", user_id).get()
+    
+    # Option 2: Sort in Python instead of Firestore
+    history = [doc.to_dict() for doc in docs]
+    
+    # Sort by words_generated_on if the field exists
+    history.sort(key=lambda x: x.get('words_generated_on', 0), reverse=True)  # Most recent first
+    
+    return history
+
+@app.get("/quiz")
+async def get_quiz(current_user: dict = Depends(get_current_user)):
+    user_ref = db.collection("words_generation_info")
+    user_id = current_user["user_id"]
+    today = datetime.now()
+    formatted_date = today.strftime("%d-%m-%Y")
+    
+    user_doc = user_ref.where("user_id", "==", user_id).where("words_generated_on", "==", formatted_date).get()
+    
+    if user_doc:
+        user_records = user_doc[0].to_dict()
+        print(user_records)
+        quiz_data = user_records["word_object"] 
+        result  = quiz_generator(quiz_data)
+        import json
+        try:
+            # Parse the JSON response from the AI
+            parsed_result = json.loads(result)
+            return parsed_result
+        except json.JSONDecodeError as e:
+            raise HTTPException(status_code=500, detail=f"Invalid JSON response from quiz generator: {str(e)}")
+    return []

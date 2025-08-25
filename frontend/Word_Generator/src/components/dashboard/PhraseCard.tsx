@@ -6,8 +6,8 @@ import { Copy, Check, BookOpen, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Phrase {
-  phrase?: string;
-  term?: string;
+  Phrase?: string;
+  Term?: string;
   "Simple Meaning": string;
   "Example Usage 1": string;
   "Example Usage 2": string;
@@ -47,10 +47,33 @@ const PhraseCard: React.FC<PhraseCardProps> = ({ item }) => {
     }
   };
 
-  const isPhrase = item.phrase !== undefined;
-  const title = item.phrase || item.term;
+  const isPhrase = item.Phrase !== undefined && item.Phrase !== null && item.Phrase !== '';
+  const title = item.Phrase || item.Term || 'Untitled';
   const copyId = `item-${title}`;
   const isCopied = copiedItems.has(copyId);
+
+  // Normalize keys for meaning and examples
+  const getMeaning = () => {
+    return (
+      item["Simple Meaning"] ||
+      item["simple meaning"] ||
+      item["Simple meaning"] ||
+      item["simple_meaning"] ||
+      item["meaning"] ||
+      ""
+    );
+  };
+
+  const getExample = (num: number) => {
+    return (
+      item[`Example Usage ${num}`] ||
+      item[`example usage ${num}`] ||
+      item[`Example usage ${num}`] ||
+      item[`example_usage_${num}`] ||
+      item[`usage${num}`] ||
+      ""
+    );
+  };
 
   return (
     <Card className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -100,7 +123,7 @@ const PhraseCard: React.FC<PhraseCardProps> = ({ item }) => {
             💡 Simple Meaning
           </h4>
           <p className="text-gray-800 text-sm leading-relaxed">
-            {item["Simple Meaning"]}
+            {getMeaning()}
           </p>
         </div>
 
@@ -111,10 +134,8 @@ const PhraseCard: React.FC<PhraseCardProps> = ({ item }) => {
           </h4>
           <div className="space-y-2">
             {[1, 2, 3].map(num => {
-              const exampleKey = `Example Usage ${num}`;
-              const example = item[exampleKey];
+              const example = getExample(num);
               if (!example) return null;
-              
               return (
                 <div 
                   key={num} 

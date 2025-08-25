@@ -98,3 +98,39 @@ export const getData = async (): Promise<any> => {
     throw error;
   }
 };
+
+export const getHistory = async (): Promise<any> => {
+  console.log('Calling getHistory API:', `${API_BASE_URL}/get-history`);
+  try {
+    const response = await fetch(`${API_BASE_URL}/get-history`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    
+    console.log('Get history response status:', response.status);
+    const result = await handleResponse(response);
+    console.log('Get history result:', result);
+    return result;
+  } catch (error) {
+    console.error('Get history error:', error);
+    throw error;
+  }
+};
+
+export const getQuiz = async (): Promise<any> => {
+  console.log('Calling getQuiz API:', `${API_BASE_URL}/quiz`);
+  try {
+    const response = await fetch(`${API_BASE_URL}/quiz`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    
+    console.log('Get quiz response status:', response.status);
+    const result = await handleResponse(response);
+    console.log('Get quiz result:', result);
+    return result;
+  } catch (error) {
+    console.error('Get quiz error:', error);
+    throw error;
+  }
+};
